@@ -1,6 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState, type CSSProperties, type RefObject } from "react";
+import { DEFAULT_CONFIG, pickImages, type CarouselConfig } from "../core/config";
 import type { CarouselInspect } from "../core/types";
+import { CameraRig } from "../scene/CameraRig";
 import { ImageCarousel } from "../scene/ImageCarousel";
 import "./cylinder-carousel.css";
 
@@ -18,6 +20,7 @@ interface CylinderCarouselProps {
   touchAction?: CSSProperties["touchAction"];
   loadingLabel?: string;
   inspectRef?: RefObject<CarouselInspect | null>;
+  config?: Partial<CarouselConfig>;
 }
 
 export function CylinderCarousel({
@@ -26,7 +29,9 @@ export function CylinderCarousel({
   touchAction = "none",
   loadingLabel = "Loading 3D images",
   inspectRef,
+  config,
 }: CylinderCarouselProps) {
+  const c = { ...DEFAULT_CONFIG, ...config };
   const [setIndex, setSetIndex] = useState(0);
   const [isSceneLoading, setIsSceneLoading] = useState(true);
 
@@ -39,14 +44,14 @@ export function CylinderCarousel({
     return null;
   }
 
-  const currentImages = sets[setIndex]?.images ?? [];
+  const currentImages = pickImages(sets[setIndex]?.images ?? [], c.imageCount);
 
   return (
     <div className="cylinder_wrap">
       <div className="cylinder_canvas">
         <Canvas
           frameloop={isMobile ? "demand" : "always"}
-          camera={{ position: [0, 0.2, 11], fov: 38 }}
+          camera={{ position: [0, c.cameraHeight, c.cameraDistance], fov: c.fov }}
           gl={{
             antialias: true,
             powerPreference: isMobile ? "default" : "high-performance",
@@ -57,24 +62,29 @@ export function CylinderCarousel({
           }}
         >
           {isMobile ? (
-            <ambientLight intensity={1.35} />
+            <ambientLight intensity={1.35 * c.lightScale} />
           ) : (
             <>
-              <ambientLight intensity={1.2} />
-              <directionalLight position={[5, 5, 8]} intensity={1.0} />
-              <directionalLight position={[-5, 3, -5]} intensity={0.4} />
+              <ambientLight intensity={1.2 * c.lightScale} />
+              <directionalLight position={[5, 5, 8]} intensity={1.0 * c.lightScale} />
+              <directionalLight position={[-5, 3, -5]} intensity={0.4 * c.lightScale} />
             </>
           )}
+          <CameraRig fov={c.fov} height={c.cameraHeight} distance={c.cameraDistance} />
 
           <Suspense fallback={null}>
             <ImageCarousel
               key={setIndex}
               imageUrls={currentImages}
-              cylinderRadius={5.5}
-              imageHeight={5}
-              autoRotateSpeed={0.2}
-              gapDeg={12}
+              cylinderRadius={c.cylinderRadius}
+              imageHeight={c.imageHeight}
+              autoRotateSpeed={c.autoRotateSpeed}
+              gapDeg={c.gapDeg}
               isMobile={isMobile}
+              rotateSpeed={c.rotateSpeed}
+              axisLockThreshold={c.axisLockThreshold}
+              scale={c.scale}
+              panelSegments={c.panelSegments}
               onReady={() => setIsSceneLoading(false)}
               inspectRef={inspectRef}
             />

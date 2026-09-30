@@ -89,3 +89,60 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.config {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #2c3138;
+  border-radius: 8px;
+}
+
+.config_group h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #aab0b8;
+}
+
+.config_field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.config_inputs {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 8px;
+  align-items: center;
+}
+
+.config_inputs input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.config_check {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.config_warning {
+  margin: 0;
+  padding: 8px;
+  border: 1px solid #a67c00;
+  border-radius: 6px;
+  color: #f2c94c;
+  font-size: 12px;
+}
+
+.config_reset {
+  align-self: flex-start;
+  padding: 6px 12px;
+  cursor: pointer;
+}

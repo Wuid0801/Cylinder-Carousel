@@ -2,7 +2,7 @@ import { useFrame, useLoader, useThree, type ThreeEvent } from "@react-three/fib
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { DoubleSide, SRGBColorSpace, TextureLoader, type Group } from "three";
 import { computePanelLayout } from "../core/layout";
-import { autoRotate, dragMove } from "../core/rotation";
+import { AXIS_LOCK_THRESHOLD, ROTATE_SPEED, autoRotate, dragMove, type DragParams } from "../core/rotation";
 import type { CarouselInspect, DragState, Rotation } from "../core/types";
 import { CurvedImagePanel } from "./CurvedImagePanel";
 
@@ -15,6 +15,10 @@ export interface ImageCarouselProps {
   autoRotateSpeed?: number;
   gapDeg?: number;
   isMobile?: boolean;
+  rotateSpeed?: number;
+  axisLockThreshold?: number;
+  scale?: number;
+  panelSegments?: number;
   onReady?: () => void;
   inspectRef?: RefObject<CarouselInspect | null>;
 }
@@ -26,6 +30,10 @@ export function ImageCarousel({
   autoRotateSpeed = 0.35,
   gapDeg = 4,
   isMobile = false,
+  rotateSpeed = ROTATE_SPEED,
+  axisLockThreshold = AXIS_LOCK_THRESHOLD,
+  scale = 0.55,
+  panelSegments = 128,
   onReady,
   inspectRef,
 }: ImageCarouselProps) {
@@ -37,6 +45,9 @@ export function ImageCarousel({
   const { gl, invalidate } = useThree();
   const glRef = useRef(gl);
   glRef.current = gl;
+  // window 리스너를 다시 등록하지 않고 화면에서 바꾼 최신 값을 읽도록 ref로 전달한다
+  const dragParamsRef = useRef<DragParams>({ rotateSpeed, axisLockThreshold });
+  dragParamsRef.current = { rotateSpeed, axisLockThreshold };
 
   const dragRef = useRef<DragState>({
     isDragging: false,
@@ -93,7 +104,7 @@ export function ImageCarousel({
       const drag = dragRef.current;
       if (!drag.isDragging) return;
 
-      dragMove(drag, rotationRef.current, e.clientX - drag.startX, e.clientY - drag.startY);
+      dragMove(drag, rotationRef.current, e.clientX - drag.startX, e.clientY - drag.startY, dragParamsRef.current);
 
       if (isMobile) invalidate();
     };
@@ -164,7 +175,7 @@ export function ImageCarousel({
   });
 
   return (
-    <group scale={[0.55, 0.55, 0.55]} onPointerDown={handlePointerDown}>
+    <group scale={[scale, scale, scale]} onPointerDown={handlePointerDown}>
       {/* 패널 사이 빈 공간에서도 드래그를 시작할 수 있게 화면 전체를 덮는 투명 구체.
           카메라가 구 안쪽에 있으므로 DoubleSide가 필요하다 */}
       <mesh renderOrder={-1}>
@@ -174,7 +185,7 @@ export function ImageCarousel({
       <group ref={groupRef}>
         {panels.map((panel, index) => (
           <group key={index} rotation={panel.rotation}>
-            <CurvedImagePanel texture={panel.texture} radius={cylinderRadius} height={imageHeight} thetaLength={panel.thetaLength} />
+            <CurvedImagePanel texture={panel.texture} radius={cylinderRadius} height={imageHeight} thetaLength={panel.thetaLength} segments={panelSegments} />
           </group>
         ))}
       </group>

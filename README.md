@@ -26,6 +26,7 @@
 - 오른쪽 패널에 `rotation`, `axis`, `yawFlip`, `isDragging`, `pointercancel` 횟수가 실시간으로 표시됩니다.
 - 세로로 크게 드래그해 90° 넘게 기울인 뒤 가로로 드래그해 보세요. `yawFlip`이 -1이 되어도 원통은 손가락과 같은 방향으로 돕니다.
 - 모바일에서 touch-action을 `auto`로 바꾸고 캔버스를 쓸면 `pointercancel`이 올라가며 드래그가 끊깁니다.
+- **값 바꿔 보기** 패널에서 반지름·이미지 높이·패널 간격·이미지 장수, 자동 회전 속도·드래그 감도·축 잠금 임계값, 시야각·카메라 거리·높이·전체 크기, 곡면 세그먼트·조명 세기를 슬라이더나 숫자로 바꿔 볼 수 있습니다. 간격 × 장수가 360° 이상이 되면 패널이 사라지는 세트를 경고로 알려 줍니다. 새로고침하면 기본값으로 돌아갑니다.
 
 ---
 
@@ -128,6 +129,7 @@ npm run e2e   # 빌드 후 Playwright (Chromium)
 | 브라우저에서 드래그, hit sphere, 좌클릭만, 캔버스 밖 종료 | [e2e/drag.spec.ts](e2e/drag.spec.ts) |
 | touch-action별 `pointercancel`·회전·스크롤 | [e2e/touch.spec.ts](e2e/touch.spec.ts) (CDP 터치 입력) |
 | 세트 전환, 이미지 로드 실패 | [e2e/loading.spec.ts](e2e/loading.spec.ts), [e2e/error.spec.ts](e2e/error.spec.ts) |
+| 화면에서 바꾼 드래그 감도·임계값이 실제 드래그에 반영되는지, 간격 경고, 기본값 복원 | [e2e/config.spec.ts](e2e/config.spec.ts), [tests/config.test.ts](tests/config.test.ts) |
 
 touch-action E2E가 확인하는 동작:
 

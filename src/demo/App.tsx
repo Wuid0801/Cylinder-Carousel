@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { DEFAULT_CONFIG, type CarouselConfig } from "../core/config";
 import type { CarouselInspect } from "../core/types";
 import { CylinderCarousel } from "../ui/CylinderCarousel";
+import { ConfigPanel } from "./ConfigPanel";
 import { DebugPanel } from "./DebugPanel";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { SETS } from "./sets";
@@ -20,6 +22,7 @@ export function App() {
   const inspectRef = useRef<CarouselInspect | null>(null);
   const cancelCountRef = useRef(0);
   const [touchAction, setTouchAction] = useState<TouchActionOption>("none");
+  const [config, setConfig] = useState<CarouselConfig>(DEFAULT_CONFIG);
   const [isMobile] = useState(() => window.matchMedia("(pointer: coarse)").matches);
 
   useEffect(() => {
@@ -48,12 +51,13 @@ export function App() {
             }}
           >
             {/* touch-action은 Canvas 생성 시 한 번만 적용되므로 값이 바뀌면 리마운트한다 */}
-            <CylinderCarousel key={touchAction} sets={SETS} isMobile={isMobile} touchAction={touchAction} inspectRef={inspectRef} />
+            <CylinderCarousel key={touchAction} sets={SETS} isMobile={isMobile} touchAction={touchAction} inspectRef={inspectRef} config={config} />
           </div>
         </ErrorBoundary>
         <aside className="demo_side">
           <TouchActionLab value={touchAction} onChange={changeTouchAction} />
           <DebugPanel inspectRef={inspectRef} cancelCountRef={cancelCountRef} />
+          <ConfigPanel config={config} onChange={setConfig} sets={SETS} />
         </aside>
       </section>
 
