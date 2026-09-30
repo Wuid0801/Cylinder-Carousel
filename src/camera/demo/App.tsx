@@ -10,6 +10,7 @@ import { STATIONS, TRACK_POINTS } from "../core/world";
 import { CameraDirector } from "../scene/CameraDirector";
 import { Tram } from "../scene/Tram";
 import { World } from "../scene/World";
+import { CameraPanel } from "./CameraPanel";
 
 type Direction = -1 | 0 | 1;
 
@@ -30,7 +31,7 @@ const HINTS: Record<CameraMode, string> = {
 
 export function App() {
   const [mode, setMode] = useState<CameraMode>("ride");
-  const [config] = useState<CameraConfig>(DEFAULT_CAMERA_CONFIG); // setConfig는 Task 7의 값 조절 패널에서 쓴다
+  const [config, setConfig] = useState<CameraConfig>(DEFAULT_CAMERA_CONFIG);
   const path = useMemo(() => createPath(TRACK_POINTS, { tension: config.tension, arcLength: config.arcLength }), [config.tension, config.arcLength]);
 
   const inspectRef = useRef<CameraInspect | null>(null);
@@ -172,7 +173,7 @@ export function App() {
       ) : null}
 
       <div className="cam_scroll" aria-hidden="true" />
-      {/* 값 조절 패널은 Task 7에서 추가 (setConfig 사용) */}
+      <CameraPanel config={config} onChange={setConfig} inspectRef={inspectRef} pathLength={path.length} />
     </div>
   );
 }

@@ -115,3 +115,29 @@ test("모드를 바꿔도 선로 위 위치를 이어받는다", async ({ page }
   await switchMode(page, "경로 탑승");
   expect((await inspect(page)).t).toBeCloseTo(u, 2);
 });
+
+test("값 조절: 높이를 올리면 카메라 목표 자세가 올라가고, 기본값으로 되돌릴 수 있다", async ({ page }) => {
+  await gotoCamera(page);
+  await page.locator('input[type="number"][name="height"]').fill("10");
+  await expect.poll(async () => (await inspect(page)).desired.position[1]).toBeGreaterThan(9);
+
+  await page.getByRole("button", { name: "기본값으로" }).click();
+  await expect(page.locator('input[type="number"][name="height"]')).toHaveValue("2");
+  await expect.poll(async () => (await inspect(page)).desired.position[1]).toBeLessThan(4);
+});
+
+test("장력·호 길이 보정을 바꿔 선로가 다시 만들어져도 상태가 유한하다", async ({ page }) => {
+  await gotoCamera(page);
+  await switchMode(page, "트램 추적");
+  await page.keyboard.down("ArrowRight");
+  await page.waitForTimeout(800);
+  await page.locator('input[type="number"][name="tension"]').fill("0.1");
+  await page.locator('input[name="arcLength"]').uncheck();
+  await page.waitForTimeout(300);
+  await page.keyboard.up("ArrowRight");
+
+  const state = await inspect(page);
+  const L = await pathLength(page);
+  [state.s, state.v, state.t, ...state.actual.position, ...state.actual.target].forEach((v) => expect(Number.isFinite(v)).toBe(true));
+  expect(state.s).toBeLessThanOrEqual(L);
+});
