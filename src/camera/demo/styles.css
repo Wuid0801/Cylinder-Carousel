@@ -1,0 +1,142 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  background: #f2efe6;
+  color: #2b2b2b;
+}
+
+body {
+  margin: 0;
+}
+
+.cam_bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: rgb(242 239 230 / 0.85);
+  border-bottom: 1px solid #d8d2c2;
+}
+
+.cam_bar h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.cam_bar a {
+  color: inherit;
+}
+
+.cam_modes {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.cam_modes button {
+  padding: 6px 12px;
+  border: 1px solid #2b2b2b;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cam_modes button[aria-pressed="true"] {
+  background: #2b2b2b;
+  color: #f2efe6;
+}
+
+.cam_hint {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 2;
+  margin: 0;
+  padding: 6px 10px;
+  background: rgb(242 239 230 / 0.85);
+  font-size: 13px;
+}
+
+/* 트램 추적 모드: 화면 왼쪽·오른쪽 절반을 누르고 있는 영역 */
+.cam_hold {
+  position: fixed;
+  inset: 56px 0 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  touch-action: none;
+}
+
+.cam_hold_zone {
+  cursor: pointer;
+}
+
+.cam_panel {
+  position: fixed;
+  top: 64px;
+  right: 16px;
+  z-index: 2;
+  width: 300px;
+  max-height: calc(100vh - 80px);
+  overflow: auto;
+  padding: 8px 12px;
+  background: rgb(242 239 230 / 0.92);
+  border: 1px solid #d8d2c2;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.cam_panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cam_status {
+  margin: 8px 0;
+  padding: 8px;
+  border-radius: 6px;
+  background: #e9e4d6;
+  line-height: 1.5;
+}
+
+.cam_group h3 {
+  margin: 10px 0 4px;
+  font-size: 12px;
+  color: #6e6a62;
+}
+
+.cam_field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.cam_field select {
+  font: inherit;
+}
+
+.cam_reset {
+  margin-top: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+/* 경로 탑승 모드에서 스크롤할 길이 */
+.cam_scroll {
+  height: 600vh;
+}
+
+@media (max-width: 800px) {
+  .cam_panel {
+    width: calc(100vw - 32px);
+  }
+
+  .cam_bar h1 {
+    font-size: 15px;
+  }
+}
