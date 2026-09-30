@@ -1,0 +1,91 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  background: #111418;
+  color: #e8eaed;
+}
+
+body {
+  margin: 0;
+}
+
+.demo {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.demo_header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.demo_header p {
+  margin: 0 0 24px;
+  color: #aab0b8;
+}
+
+.demo_stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.demo_side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lab {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #2c3138;
+  border-radius: 8px;
+}
+
+.lab label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.lab label span {
+  grid-column: 2;
+  color: #aab0b8;
+}
+
+.debug_panel {
+  min-height: 8em;
+  margin: 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #1a1e24;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.demo_error {
+  padding: 24px;
+  border: 1px solid #a33;
+  border-radius: 8px;
+}
+
+/* 스크롤 비교를 위해 페이지가 뷰포트보다 길어야 한다 */
+.demo_notes {
+  min-height: 150vh;
+  margin-top: 48px;
+  color: #c8ccd2;
+  line-height: 1.7;
+}
+
+@media (max-width: 800px) {
+  .demo_stage {
+    grid-template-columns: 1fr;
+  }
+}
