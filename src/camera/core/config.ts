@@ -27,8 +27,8 @@ export interface CameraConfig {
 }
 
 export const DEFAULT_CAMERA_CONFIG: CameraConfig = {
-  side: 8,
-  height: 2.5,
+  side: 14,
+  height: 2,
   lookAhead: 0.02,
   fov: 40,
   accel: 6,

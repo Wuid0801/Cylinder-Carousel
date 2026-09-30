@@ -4,8 +4,8 @@ import { DEFAULT_CAMERA_CONFIG, FIXED_DAMP_RATIO } from "../../src/camera/core/c
 describe("DEFAULT_CAMERA_CONFIG", () => {
   it("스펙 §6의 기본값과 같다", () => {
     expect(DEFAULT_CAMERA_CONFIG).toEqual({
-      side: 8,
-      height: 2.5,
+      side: 14,
+      height: 2,
       lookAhead: 0.02,
       fov: 40,
       accel: 6,
