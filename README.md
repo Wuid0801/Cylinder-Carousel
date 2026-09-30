@@ -39,7 +39,10 @@ src/
 └─ camera/  Camera Playground
 ```
 
-## Camera Playground
+<details>
+<summary><b>Camera Playground · 테스트 </b> (펼치기)</summary>
+
+### Camera Playground
 
 흑백 풍경 속 선로를 달리는 트램으로 카메라 연출을 비교합니다.
 
@@ -52,7 +55,7 @@ src/
 - 감쇠는 `1 − e^(−λ·dt)`로 프레임 속도와 무관 (30fps와 144fps 결과가 같음을 테스트)
 - 역 정차는 남은 거리에서 설 수 있는 속도 `√(2·제동력·d)`를 따라가 목표를 넘지 않고 멈춤
 
-## 테스트
+### 테스트
 
 ```bash
 npm test      # 단위 테스트 (Vitest)
@@ -63,9 +66,11 @@ npm run e2e   # 빌드 후 브라우저 테스트 (Playwright, Chromium)
 - 브라우저: 드래그, 투명 구체, 수정 전 방식 재현, touch-action별 `pointercancel` ([측정](docs/touch-probe.md)), 세트 전환, 두 모드 카메라 동작
 - 핵심 코드를 일부러 망가뜨려 해당 테스트가 실패하는지도 확인
 
-## 한계
+### 한계
 
 - 간격 12°에서는 이미지를 29장까지만 배치 가능
 - 멀티터치는 고려하지 않음
 - `touch-action: none`이라 캔버스 위에서는 페이지 스크롤 불가
 - Camera Playground 경로 탑승에서 스크롤을 맨 위로 올리면 트램이 오른쪽 끝으로 가는데, 데스크톱에서는 값 조절 패널에 가려짐 (패널을 접으면 보임)
+
+</details>
