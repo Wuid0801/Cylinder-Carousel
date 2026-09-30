@@ -94,3 +94,25 @@ describe("autoRotate", () => {
     expect(rotation.y).toBeCloseTo(-0.1);
   });
 });
+
+describe("드래그 감도·축 잠금 임계값 조절", () => {
+  it("임계값을 올리면 그보다 짧은 이동은 무시한다", () => {
+    expect(resolveAxis(10, 0, 20)).toBeNull();
+    expect(resolveAxis(20, 0, 20)).toBe("y");
+  });
+
+  it("드래그 감도를 2배로 하면 같은 이동에 2배 회전한다", () => {
+    const rotation = { x: 0, y: 0 };
+    const drag = startDrag(rotation);
+    dragMove(drag, rotation, 50, 0, { rotateSpeed: 0.02, axisLockThreshold: 6 });
+    expect(rotation.y).toBeCloseTo(1);
+  });
+
+  it("dragMove에 넘긴 임계값으로 축을 정한다", () => {
+    const rotation = { x: 0, y: 0 };
+    const drag = startDrag(rotation);
+    dragMove(drag, rotation, 10, 0, { rotateSpeed: 0.01, axisLockThreshold: 20 });
+    expect(drag.axis).toBeNull();
+    expect(rotation.y).toBe(0);
+  });
+});
