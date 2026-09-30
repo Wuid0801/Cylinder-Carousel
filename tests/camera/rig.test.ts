@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createPath } from "../../src/camera/core/path";
-import { besidePose } from "../../src/camera/core/rig";
+import { besidePose, rideCameraS, visibleHalfWidth } from "../../src/camera/core/rig";
 import type { Vec3 } from "../../src/camera/core/vec3";
 
 // 고르게 놓인 일직선 제어점 → 곡선도 x축 위 직선
@@ -31,5 +31,19 @@ describe("besidePose", () => {
     expectVec(pose.position, [20, 0, 0]);
     expectVec(pose.target, [21, 0, 0]);
     [...pose.position, ...pose.target].forEach((v) => expect(Number.isFinite(v)).toBe(true));
+  });
+});
+
+describe("경로 탑승 카메라 범위", () => {
+  it("선로까지 거리 side에서 화면 가로 절반이 덮는 길이", () => {
+    expect(visibleHalfWidth(14, 40, 16 / 9)).toBeCloseTo(14 * Math.tan((20 * Math.PI) / 180) * (16 / 9), 9);
+  });
+
+  it("스크롤 가운데면 트램이 화면 중앙, 양 끝이면 가로 범위의 margin 지점", () => {
+    // 카메라가 보는 선로 지점 = 카메라 위치 + 앞보기 거리
+    const center = (p: number) => rideCameraS(50, p, 2, 10, 0.8) + 2;
+    expect(center(0.5)).toBeCloseTo(50, 9);
+    expect(center(1) - 50).toBeCloseTo(8, 9);
+    expect(center(0) - 50).toBeCloseTo(-8, 9);
   });
 });
