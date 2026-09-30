@@ -25,13 +25,14 @@ declare global {
 }
 
 const HINTS: Record<CameraMode, string> = {
-  ride: "스크롤하면 카메라가 선로를 따라 이동합니다 (보간)",
-  follow: "화면 오른쪽·왼쪽을 누르고 있거나 → ← 키로 트램을 움직이세요. 카메라는 뒤따라옵니다 (감쇠). 역에서 멈추면 다가갑니다",
+  ride: "트램이 역을 오가며 스스로 달립니다. 스크롤하면 트램이 화면 안에 있는 범위에서 카메라가 앞뒤로 움직입니다 (보간: 트램에 딱 붙어 이동)",
+  follow: "화면 오른쪽·왼쪽을 누르고 있거나 → ← 키로 트램을 움직이세요. 카메라는 뒤따라옵니다 (감쇠). 역 앞에서 손을 떼면 노란 승강장 역 중앙에 섭니다",
 };
 
 export function App() {
   const [mode, setMode] = useState<CameraMode>("ride");
   const [config, setConfig] = useState<CameraConfig>(DEFAULT_CAMERA_CONFIG);
+  const [snapStation, setSnapStation] = useState<number | null>(null); // 승강장을 강조할 역
   const path = useMemo(() => createPath(TRACK_POINTS, { tension: config.tension, arcLength: config.arcLength }), [config.tension, config.arcLength]);
 
   const inspectRef = useRef<CameraInspect | null>(null);
@@ -39,8 +40,8 @@ export function App() {
   const inputRef = useRef<Direction>(0);
   const keyDirRef = useRef<Direction>(0);
   const pointerDirRef = useRef<Direction>(0);
-  const scrollRef = useRef(0);
-  const pendingScrollRef = useRef<number | null>(null);
+  const scrollRef = useRef(0.5);
+  const centerScrollRef = useRef(true); // 경로 탑승에 들어올 때 스크롤을 가운데(트램이 화면 중앙)로 맞춘다
   const modeRef = useRef(mode);
   modeRef.current = mode;
   const pathRef = useRef(path);
@@ -102,21 +103,20 @@ export function App() {
   const switchMode = (next: CameraMode) => {
     if (next === mode) return;
     if (next === "ride") {
-      // 트램이 있던 지점에서 이어서 타도록 스크롤 위치를 옮길 준비
-      const u = inspectRef.current ? inspectRef.current.s / path.length : 0;
-      scrollRef.current = u;
-      pendingScrollRef.current = u;
+      scrollRef.current = 0.5;
+      centerScrollRef.current = true;
     }
     setPointerDir(0);
     setMode(next);
   };
 
-  // 트램 추적 모드에서는 스크롤 위치를 그대로 둔 채 페이지를 잠그고, 경로 탑승으로 돌아오면 트램 위치로 스크롤한다
+  // 트램 추적 모드에서는 페이지를 잠그고, 경로 탑승에 들어오면(처음 열 때 포함) 스크롤을 가운데로 맞춘다
   useLayoutEffect(() => {
     document.documentElement.style.overflow = mode === "follow" ? "hidden" : "";
-    if (mode === "ride" && pendingScrollRef.current !== null) {
-      window.scrollTo(0, progressToScroll(pendingScrollRef.current, document.documentElement.scrollHeight, window.innerHeight));
-      pendingScrollRef.current = null;
+    if (mode === "ride" && centerScrollRef.current) {
+      window.scrollTo(0, progressToScroll(0.5, document.documentElement.scrollHeight, window.innerHeight));
+      scrollRef.current = 0.5;
+      centerScrollRef.current = false;
     }
   }, [mode]);
 
@@ -124,7 +124,7 @@ export function App() {
     <div className="cam">
       <ErrorBoundary>
         <Canvas className="cam_canvas" camera={{ fov: config.fov, near: 0.1, far: 500 }} style={{ position: "fixed", inset: 0 }}>
-          <World path={path} stations={STATIONS} fogNear={config.fogNear} fogFar={config.fogFar} />
+          <World path={path} stations={STATIONS} highlight={snapStation} fogNear={config.fogNear} fogFar={config.fogFar} />
           <Tram ref={tramRef} />
           <CameraDirector
             path={path}
@@ -135,6 +135,7 @@ export function App() {
             scrollRef={scrollRef}
             tramRef={tramRef}
             inspectRef={inspectRef}
+            onSnapChange={setSnapStation}
           />
         </Canvas>
       </ErrorBoundary>

@@ -126,9 +126,9 @@ body {
   cursor: pointer;
 }
 
-/* 경로 탑승 모드에서 스크롤할 길이 */
+/* 경로 탑승 모드에서 스크롤할 길이 (트램 앞뒤 범위만 담당하므로 짧게) */
 .cam_scroll {
-  height: 600vh;
+  height: 300vh;
 }
 
 @media (max-width: 800px) {

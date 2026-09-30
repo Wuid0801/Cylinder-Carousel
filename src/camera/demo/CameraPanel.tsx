@@ -31,6 +31,16 @@ const GROUPS: { title: string; fields: Field[]; extra?: "dampMode" | "easing" | 
       { key: "accel", label: "가속", min: 0.5, max: 20, step: 0.5 },
       { key: "maxSpeed", label: "최고 속도", min: 1, max: 30, step: 0.5 },
       { key: "friction", label: "마찰", min: 0, max: 20, step: 0.5 },
+      { key: "brake", label: "제동력 (역에 설 때)", min: 0.5, max: 20, step: 0.5 },
+    ],
+  },
+  {
+    title: "역 흡착 · 자동 운행",
+    fields: [
+      { key: "snapRange", label: "역 흡착 거리 (트램 추적)", min: 0, max: 30, step: 1 },
+      { key: "autoSpeed", label: "자동 운행 속도 (경로 탑승)", min: 0.5, max: 20, step: 0.5 },
+      { key: "dwellTime", label: "정차 시간 (초)", min: 0, max: 10, step: 0.5 },
+      { key: "rideMargin", label: "카메라 범위 (화면 가로 대비)", min: 0, max: 1, step: 0.05 },
     ],
   },
   {
@@ -86,6 +96,9 @@ export function CameraPanel({ config, onChange, inspectRef, pathLength }: Camera
               `s / L       ${info.s.toFixed(1)} / ${pathLength.toFixed(1)}`,
               `v           ${info.v.toFixed(2)}`,
               `station     ${info.station ?? "-"}`,
+              `snap        ${info.snap ?? "-"}`,
+              `dwell       ${info.dwell > 0 ? info.dwell.toFixed(1) : "-"}`,
+              `tram x      ${info.tramNdcX.toFixed(2)}`,
               `transition  ${info.transition.active ? `${Math.round(info.transition.progress * 100)}%` : "-"}`,
               `lag         ${distance(info.actual.position, info.desired.position).toFixed(2)}`,
             ].join("\n")

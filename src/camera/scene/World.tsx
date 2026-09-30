@@ -14,17 +14,19 @@ const COLORS = {
   roof: "#5c5a55",
   platform: "#a8a499",
   sleeper: "#6e6a62",
+  highlight: "#d9a441", // 트램이 서려는 역의 승강장
   ground: "#e9e4d6",
 };
 
 interface WorldProps {
   path: Path;
   stations: number[];
+  highlight: number | null;
   fogNear: number;
   fogFar: number;
 }
 
-export function World({ path, stations, fogNear, fogFar }: WorldProps) {
+export function World({ path, stations, highlight, fogNear, fogFar }: WorldProps) {
   const scenery = useMemo(() => layoutScenery(SCENERY_SEED), []);
   const foreground = useMemo(() => layoutForeground(path, SCENERY_SEED), [path]);
   const sleepers = useMemo(() => alongTrack(path, 1.5), [path]);
@@ -59,7 +61,7 @@ export function World({ path, stations, fogNear, fogFar }: WorldProps) {
 
       {spots.map((spot, i) => (
         <group key={i}>
-          <Outlined shape="platform" color={COLORS.platform} position={spot.platform} rotationY={spot.rotationY} />
+          <Outlined shape="platform" color={i === highlight ? COLORS.highlight : COLORS.platform} position={spot.platform} rotationY={spot.rotationY} />
           <Outlined shape="house" color={COLORS.house} position={spot.house} rotationY={spot.rotationY} />
           <Outlined shape="roof" color={COLORS.roof} position={spot.house} rotationY={spot.rotationY} />
         </group>
