@@ -141,3 +141,44 @@ test("장력·호 길이 보정을 바꿔 선로가 다시 만들어져도 상�
   [state.s, state.v, state.t, ...state.actual.position, ...state.actual.target].forEach((v) => expect(Number.isFinite(v)).toBe(true));
   expect(state.s).toBeLessThanOrEqual(L);
 });
+
+test("트램 추적 중 방향키는 포커스된 슬라이더 값을 바꾸지 않고 트램만 움직인다", async ({ page }) => {
+  await gotoCamera(page);
+  await switchMode(page, "트램 추적");
+  await page.locator('input[type="range"][name="tension"]').focus();
+  await page.keyboard.down("ArrowRight");
+  await page.waitForTimeout(500);
+  const during = await inspect(page);
+  await page.keyboard.up("ArrowRight");
+
+  await expect(page.locator('input[type="number"][name="tension"]')).toHaveValue("0.5");
+  expect(during.v).toBeGreaterThan(0);
+});
+
+test("역을 떠나는 전환이 끝나도 카메라가 멈칫하지 않고 감쇠 추적을 이어간다", async ({ page }) => {
+  await gotoCamera(page);
+  await scrollToProgress(page, 0.2);
+  await expect.poll(async () => (await inspect(page)).t).toBeCloseTo(0.2, 2);
+  await page.getByRole("button", { name: "트램 추적" }).click();
+  await expect.poll(async () => (await inspect(page)).station).toBe(0);
+  await expect.poll(async () => (await inspect(page)).transition.active, { timeout: 5_000 }).toBe(false);
+
+  await page.keyboard.down("ArrowRight");
+  await expect.poll(async () => (await inspect(page)).transition.active).toBe(true);
+  // 전환이 끝난 바로 그 프레임의 뒤처짐. 전환이 목표에 딱 붙은 채 끝나면 0에 가깝고, 이후 감쇠가 처음부터 다시 쌓이며 멈칫한다
+  const lagAtEnd = await page.evaluate(
+    () =>
+      new Promise<number>((resolve) => {
+        const tick = () => {
+          const info = window.__camera!.inspect.current!;
+          if (!info.transition.active) {
+            const [a, b] = [info.actual.position, info.desired.position];
+            resolve(Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]));
+          } else requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+  );
+  await page.keyboard.up("ArrowRight");
+  expect(lagAtEnd).toBeGreaterThan(1);
+});

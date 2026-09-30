@@ -31,6 +31,8 @@ export function CameraDirector({ path, stations, mode, config, inputRef, scrollR
   const actualRef = useRef<CameraPose | null>(null);
   const transitionRef = useRef<Transition | null>(null);
   const stationRef = useRef<number | null>(null);
+  // 감쇠 추적 자세. 전환 중에도 계속 갱신해 전환의 목표로 쓰므로, 전환이 끝나도 추적 속도가 끊기지 않는다
+  const followRef = useRef<CameraPose | null>(null);
   const modeRef = useRef<CameraMode>(mode);
   const infoRef = useRef<CameraInspect>({
     mode,
@@ -57,7 +59,9 @@ export function CameraDirector({ path, stations, mode, config, inputRef, scrollR
   // 역 근접 시점: 옆 거리·높이를 절반으로 줄여 역 지점을 바라본다
   const closeup = (u: number) => besidePose(path, u, { side: config.side / 2, height: config.height / 2, lookAhead: 0 });
   const beginTransition = (from: CameraPose | null) => {
-    if (from) transitionRef.current = startTransition(from, config.transitionDuration, config.easing);
+    if (!from) return;
+    transitionRef.current = startTransition(from, config.transitionDuration, config.easing);
+    followRef.current = from; // 추적은 전환이 시작된 자세에서부터 쌓는다
   };
 
   useFrame((_, rawDt) => {
@@ -101,19 +105,20 @@ export function CameraDirector({ path, stations, mode, config, inputRef, scrollR
         actual = desired;
       } else {
         desired = rig(t);
-        const from = prev ?? desired;
+        const from = followRef.current ?? prev ?? desired;
         // 감쇠: 목표 자세를 매 프레임 쫓아간다
         actual =
           config.dampMode === "exp"
             ? { position: damp(from.position, desired.position, config.damping, dt), target: damp(from.target, desired.target, config.damping, dt) }
             : { position: dampFixed(from.position, desired.position, FIXED_DAMP_RATIO), target: dampFixed(from.target, desired.target, FIXED_DAMP_RATIO) };
+        followRef.current = actual;
       }
     }
 
-    // 전환 중이면 모드 계산 결과보다 우선한다. 끝나면 추적은 현재 자세에서 감쇠가 이어져 튀지 않는다
+    // 전환 중이면 모드 계산 결과(actual)를 목표로 보간한다. 추적에서는 감쇠 자세를 향하므로 끝나는 순간 그대로 이어진다
     const tr = transitionRef.current;
     if (tr) {
-      const step = stepTransition(tr, dt, desired);
+      const step = stepTransition(tr, dt, actual);
       actual = step.pose;
       transitionRef.current = step.done ? null : step.next;
     }

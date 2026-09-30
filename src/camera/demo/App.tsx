@@ -69,6 +69,8 @@ export function App() {
       if (e.key === "ArrowRight") keyDirRef.current = 1;
       else if (e.key === "ArrowLeft") keyDirRef.current = -1;
       else return;
+      // 트램 추적 중에는 방향키가 트램 전용이다. 포커스된 슬라이더·선택 상자의 값이 함께 바뀌지 않게 막는다
+      if (modeRef.current === "follow") e.preventDefault();
       sync();
     };
     const onKeyUp = (e: KeyboardEvent) => {
