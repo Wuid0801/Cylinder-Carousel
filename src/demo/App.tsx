@@ -4,7 +4,7 @@ import type { CarouselInspect } from "../core/types";
 import { CylinderCarousel } from "../ui/CylinderCarousel";
 import { ConfigPanel } from "./ConfigPanel";
 import { DebugPanel } from "./DebugPanel";
-import { ErrorBoundary } from "./ErrorBoundary";
+import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { SETS } from "./sets";
 import { TouchActionLab, type TouchActionOption } from "./TouchActionLab";
 
@@ -39,6 +39,9 @@ export function App() {
       <header className="demo_header">
         <h1>Cylinder Carousel</h1>
         <p>드래그와 자동 회전이 하나의 회전 상태를 공유하는 3D 원통 이미지 캐러셀입니다. 가로·세로로 드래그해 보세요.</p>
+        <p className="demo_links">
+          <a href="./camera/">카메라 플레이그라운드 →</a>
+        </p>
       </header>
 
       <section className="demo_stage">

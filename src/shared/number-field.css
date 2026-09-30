@@ -1,0 +1,11 @@
+.config_inputs {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 8px;
+  align-items: center;
+}
+
+.config_inputs input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+}

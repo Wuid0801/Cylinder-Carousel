@@ -113,18 +113,6 @@ body {
   font-size: 12px;
 }
 
-.config_inputs {
-  display: grid;
-  grid-template-columns: 1fr 72px;
-  gap: 8px;
-  align-items: center;
-}
-
-.config_inputs input[type="number"] {
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .config_check {
   display: flex;
   gap: 6px;
@@ -145,4 +133,12 @@ body {
   align-self: flex-start;
   padding: 6px 12px;
   cursor: pointer;
+}
+
+.demo_links {
+  margin: -12px 0 24px;
+}
+
+.demo_links a {
+  color: #8ab4f8;
 }
