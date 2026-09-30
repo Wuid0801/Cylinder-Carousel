@@ -1,9 +1,11 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState, type CSSProperties, type RefObject } from "react";
 import { DEFAULT_CONFIG, pickImages, type CarouselConfig } from "../core/config";
-import type { CarouselInspect } from "../core/types";
+import type { CarouselInspect, ControlMode } from "../core/types";
 import { CameraRig } from "../scene/CameraRig";
 import { ImageCarousel } from "../scene/ImageCarousel";
+import { LegacyImageCarousel } from "../scene/LegacyImageCarousel";
+import { LegacyOrbitControls } from "../scene/LegacyOrbitControls";
 import "./cylinder-carousel.css";
 
 export interface CarouselSet {
@@ -21,6 +23,7 @@ interface CylinderCarouselProps {
   loadingLabel?: string;
   inspectRef?: RefObject<CarouselInspect | null>;
   config?: Partial<CarouselConfig>;
+  controlMode?: ControlMode; // 비교용: orbit이면 수정 전 방식(물체 자동 회전 + 카메라 궤도 드래그)
 }
 
 export function CylinderCarousel({
@@ -30,6 +33,7 @@ export function CylinderCarousel({
   loadingLabel = "Loading 3D images",
   inspectRef,
   config,
+  controlMode = "object",
 }: CylinderCarouselProps) {
   const c = { ...DEFAULT_CONFIG, ...config };
   const [setIndex, setSetIndex] = useState(0);
@@ -50,7 +54,8 @@ export function CylinderCarousel({
     <div className="cylinder_wrap">
       <div className="cylinder_canvas">
         <Canvas
-          frameloop={isMobile ? "demand" : "always"}
+          // 수정 전 방식은 invalidate()를 부르지 않으므로 모바일에서도 매 프레임 그린다
+          frameloop={isMobile && controlMode === "object" ? "demand" : "always"}
           camera={{ position: [0, c.cameraHeight, c.cameraDistance], fov: c.fov }}
           gl={{
             antialias: true,
@@ -73,22 +78,38 @@ export function CylinderCarousel({
           <CameraRig fov={c.fov} height={c.cameraHeight} distance={c.cameraDistance} />
 
           <Suspense fallback={null}>
-            <ImageCarousel
-              key={setIndex}
-              imageUrls={currentImages}
-              cylinderRadius={c.cylinderRadius}
-              imageHeight={c.imageHeight}
-              autoRotateSpeed={c.autoRotateSpeed}
-              gapDeg={c.gapDeg}
-              isMobile={isMobile}
-              rotateSpeed={c.rotateSpeed}
-              axisLockThreshold={c.axisLockThreshold}
-              scale={c.scale}
-              panelSegments={c.panelSegments}
-              onReady={() => setIsSceneLoading(false)}
-              inspectRef={inspectRef}
-            />
+            {controlMode === "orbit" ? (
+              <LegacyImageCarousel
+                key={setIndex}
+                imageUrls={currentImages}
+                cylinderRadius={c.cylinderRadius}
+                imageHeight={c.imageHeight}
+                autoRotateSpeed={c.autoRotateSpeed}
+                gapDeg={c.gapDeg}
+                scale={c.scale}
+                panelSegments={c.panelSegments}
+                onReady={() => setIsSceneLoading(false)}
+                inspectRef={inspectRef}
+              />
+            ) : (
+              <ImageCarousel
+                key={setIndex}
+                imageUrls={currentImages}
+                cylinderRadius={c.cylinderRadius}
+                imageHeight={c.imageHeight}
+                autoRotateSpeed={c.autoRotateSpeed}
+                gapDeg={c.gapDeg}
+                isMobile={isMobile}
+                rotateSpeed={c.rotateSpeed}
+                axisLockThreshold={c.axisLockThreshold}
+                scale={c.scale}
+                panelSegments={c.panelSegments}
+                onReady={() => setIsSceneLoading(false)}
+                inspectRef={inspectRef}
+              />
+            )}
           </Suspense>
+          {controlMode === "orbit" ? <LegacyOrbitControls inspectRef={inspectRef} /> : null}
         </Canvas>
         {isSceneLoading ? (
           <div className="cylinder_loading_overlay" aria-live="polite" aria-label={loadingLabel}>

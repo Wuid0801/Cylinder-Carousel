@@ -7,6 +7,8 @@ function configInput(page: Page, key: string) {
 
 async function setConfig(page: Page, key: string, value: number) {
   await configInput(page, key).fill(String(value));
+  // 입력칸으로 스크롤되면 캔버스가 화면 밖으로 밀려나므로 드래그하기 전에 맨 위로 되돌린다
+  await page.evaluate(() => window.scrollTo(0, 0));
 }
 
 test.beforeEach(async ({ page }) => {

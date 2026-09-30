@@ -24,6 +24,8 @@ export function DebugPanel({ inspectRef, cancelCountRef }: DebugPanelProps) {
               `isDragging     ${inspect.drag.isDragging}`,
               `axis           ${inspect.drag.axis ?? "-"}`,
               `pointercancel  ${cancelCountRef.current}`,
+              // 수정 전 방식에서는 물체 대신 카메라가 돈다
+              ...(inspect.camera ? [`camera 방위각  ${inspect.camera.azimuth.toFixed(3)}`, `camera 고도    ${inspect.camera.polar.toFixed(3)}`] : []),
             ].join("\n")
           : "loading…";
       }

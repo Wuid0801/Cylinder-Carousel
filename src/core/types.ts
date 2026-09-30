@@ -20,4 +20,8 @@ export interface DragState {
 export interface CarouselInspect {
   rotation: Rotation;
   drag: DragState;
+  camera?: { azimuth: number; polar: number }; // 수정 전 방식(카메라 궤도)에서만: 카메라 방위각·고도 (rad)
 }
+
+// object: 카메라 고정 + 물체 회전 (현재) / orbit: 물체 자동 회전 + OrbitControls 카메라 궤도 드래그 (수정 전)
+export type ControlMode = "object" | "orbit";
