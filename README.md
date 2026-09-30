@@ -11,6 +11,7 @@
 - 패널 사이 빈 공간에서도 드래그 (투명 hit sphere)
 - 모바일에서 드래그가 끊기지 않도록 `touch-action` 직접 지정
 - React·three에 의존하지 않는 core와 제스처 재생 시뮬레이션, Playwright 터치 E2E
+- **Camera Playground** (`/camera/`): 카메라가 선로를 타는 보간과 트램을 따라가는 감쇠를 같은 장면에서 비교
 
 ---
 
@@ -114,6 +115,44 @@ Chromium에서 측정해 보면 기본값(`auto`)에서는 페이지에 가로 �
 
 ---
 
+## Camera Playground
+
+**데모:** https://wuid0801.github.io/Cylinder-Carousel/camera/
+
+흑백 풍경 속 선로를 두고, 카메라 연출을 값을 바꿔 가며 비교해 보는 페이지입니다.
+
+| 모드 | 입력 | 카메라 |
+|---|---|---|
+| 경로 탑승 | 스크롤 | 스크롤이 정한 선로 진행도 `t`의 자세를 **그대로** 쓴다 (보간) |
+| 트램 추적 | 화면 좌·우 누르기, ← → 키 | 트램 옆 자세를 목표로 **매 프레임 쫓아간다** (감쇠) |
+
+- 두 모드는 같은 `besidePose(선로, u, 옆 거리·높이·앞보기)`를 쓰고, 보간이냐 감쇠냐만 다릅니다.
+- 트램이 역 근처에서 멈추면 카메라가 다가가는 시점 전환이 일어납니다. 전환은 트램처럼 움직이는 목표도 매 프레임 따라가도록 목표를 저장하지 않습니다.
+- 모드를 바꾸면 현재 자세에서 새 모드로 전환하고, 선로 위 위치를 이어받습니다.
+
+```text
+src/camera/
+├─ core/    React·three import 없음
+│   path        Catmull-Rom 곡선 + 호 길이 표 (three CatmullRomCurve3와 교차 검증)
+│   motion      누르기 → 가속·최고 속도·마찰 → 선로 위 거리
+│   follow      damp: 1 − e^(−λ·dt)  /  dampFixed: 프레임마다 고정 비율 (비교용)
+│   transition  이징 4종, 움직이는 목표를 향한 전환, 도중에 끊기
+│   rig · scroll · world · random
+├─ scene/   CameraDirector (카메라·트램에 쓰는 유일한 곳) · World · Tram
+└─ demo/    App · CameraPanel
+```
+
+값 조절 패널에서 바꿔 볼 수 있는 것:
+
+- 카메라 배치: 옆 거리, 높이, 앞보기, 시야각
+- 트램: 가속, 최고 속도, 마찰
+- 추적: 감쇠 λ, 감쇠 방식. "고정 비율"로 바꾸면 모니터 주사율에 따라 따라오는 속도가 달라집니다.
+- 시점 전환: 지속 시간, 이징, 정차 판정 속도, 역 판정 거리
+- 선로: 장력, 호 길이 보정. 끄면 굽은 곳에서 속도가 변합니다.
+- 화면: 안개 시작·끝
+
+---
+
 ## 테스트
 
 ```bash
@@ -130,6 +169,8 @@ npm run e2e   # 빌드 후 Playwright (Chromium)
 | touch-action별 `pointercancel`·회전·스크롤 | [e2e/touch.spec.ts](e2e/touch.spec.ts) (CDP 터치 입력) |
 | 세트 전환, 이미지 로드 실패 | [e2e/loading.spec.ts](e2e/loading.spec.ts), [e2e/error.spec.ts](e2e/error.spec.ts) |
 | 화면에서 바꾼 드래그 감도·임계값이 실제 드래그에 반영되는지, 간격 경고, 기본값 복원 | [e2e/config.spec.ts](e2e/config.spec.ts), [tests/config.test.ts](tests/config.test.ts) |
+| 카메라 core: 곡선(three와 교차 검증), 호 길이, 가속·마찰, 프레임 속도와 무관한 감쇠, 시점 전환 | [tests/camera/](tests/camera) |
+| 카메라 페이지: 스크롤 → 진행도, 추적 감쇠, 역 정차 전환, 모드 전환 연속성, 포커스 이탈, 값 조절 | [e2e/camera/camera.spec.ts](e2e/camera/camera.spec.ts) |
 
 touch-action E2E가 확인하는 동작:
 

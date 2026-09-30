@@ -4,6 +4,8 @@ export default defineConfig({
   testDir: "e2e",
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // WebGL을 CPU(SwiftShader)로 그리므로 브라우저 여러 개를 동시에 띄우면 서로 CPU를 빼앗아 시간 초과가 난다
+  workers: 1,
   reporter: process.env.CI ? "github" : "list",
   expect: { timeout: 10_000 },
   use: { baseURL: "http://localhost:4173", trace: "on-first-retry" },
