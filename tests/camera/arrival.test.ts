@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canStopAt, pickSnapStation, stepArrival } from "../../src/camera/core/arrival";
+import { canStopAt, pickSnapStation, stepArrival, stepSnap } from "../../src/camera/core/arrival";
 import type { MotionState } from "../../src/camera/core/motion";
 
 const P = { maxSpeed: 5, accel: 6, brake: 4 };
@@ -71,5 +71,30 @@ describe("역 흡착 판정", () => {
   it("흡착할 수 있는 역 중 가장 가까운 역을 고른다", () => {
     expect(pickSnapStation({ s: 50, v: 2 }, [25, 55, 58], 4, 10)).toBe(1);
     expect(pickSnapStation({ s: 50, v: 2 }, [25, 80], 4, 10)).toBeNull();
+  });
+});
+
+describe("stepSnap (손을 뗀 뒤 역 흡착)", () => {
+  const S = { accel: 6, brake: 4, friction: 3 };
+
+  it("손을 뗀 뒤에는 빨라지지 않고, 역 중앙에 정확히 선다", () => {
+    let state: MotionState = { s: 0, v: 5 };
+    for (let i = 0; i < 10 / DT; i++) {
+      const next = stepSnap(state, 9, S, DT);
+      if (Math.abs(state.v) > 1.5) expect(Math.abs(next.v)).toBeLessThanOrEqual(Math.abs(state.v) + 1e-9);
+      state = next;
+    }
+    expect(state).toEqual({ s: 9, v: 0 });
+  });
+
+  it("거의 서 있으면 느린 속도로 역 중앙까지 다가간다", () => {
+    let state: MotionState = { s: 0, v: 0 };
+    let maxSpeed = 0;
+    for (let i = 0; i < 20 / DT; i++) {
+      state = stepSnap(state, 3, S, DT);
+      maxSpeed = Math.max(maxSpeed, Math.abs(state.v));
+    }
+    expect(state).toEqual({ s: 3, v: 0 });
+    expect(maxSpeed).toBeLessThanOrEqual(1.5 + 1e-9);
   });
 });

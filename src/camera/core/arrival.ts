@@ -47,3 +47,11 @@ export function pickSnapStation(state: MotionState, stationsS: number[], brake: 
   });
   return best;
 }
+
+const SNAP_CREEP_SPEED = 1.5; // 거의 서 있을 때 역 중앙까지 다가가는 느린 속도
+
+// 손을 뗀 뒤의 역 흡착: 빨라지지 않고(마찰만큼은 줄어든다) 필요할 때만 제동해 역 중앙에 선다
+export function stepSnap(state: MotionState, target: number, { accel, brake, friction }: { accel: number; brake: number; friction: number }, dt: number): MotionState {
+  const cap = Math.max(Math.abs(state.v) - friction * dt, SNAP_CREEP_SPEED);
+  return stepArrival(state, target, { maxSpeed: cap, accel, brake }, dt);
+}
