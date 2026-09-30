@@ -5,6 +5,11 @@
   color: #2b2b2b;
 }
 
+/* 트램 추적 모드에서 overflow: hidden으로 스크롤바가 사라져도 그 폭을 비워 두어, 화면 폭과 캔버스 비율이 바뀌지 않게 한다 */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
 }

@@ -137,7 +137,7 @@ export function CameraPanel({ config, onChange, inspectRef, pathLength }: Camera
 
           {group.extra === "easing" ? (
             <label className="cam_field">
-              <span>이징</span>
+              <span>속도 변화 방식</span>
               <select name="easing" value={config.easing} onChange={(e) => set("easing", e.target.value as EasingName)}>
                 {EASING_NAMES.map((name) => (
                   <option key={name} value={name}>

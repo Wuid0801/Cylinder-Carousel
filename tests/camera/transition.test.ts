@@ -11,7 +11,7 @@ function expectPose(actual: CameraPose, expected: CameraPose) {
   }
 }
 
-describe("이징", () => {
+describe("속도 변화 방식", () => {
   for (const name of EASING_NAMES) {
     it(`${name}: 0에서 0, 1에서 1`, () => {
       expect(EASINGS[name](0)).toBeCloseTo(0, 12);
