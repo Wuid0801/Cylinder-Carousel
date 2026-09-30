@@ -1,0 +1,20 @@
+import type { Vec3 } from "./vec3";
+
+export interface CameraPose {
+  position: Vec3;
+  target: Vec3; // 바라보는 지점 (lookAt)
+}
+
+export type CameraMode = "ride" | "follow";
+
+// 상태 패널·E2E가 읽는 값. CameraDirector가 매 프레임 같은 객체의 필드를 갱신한다
+export interface CameraInspect {
+  mode: CameraMode;
+  t: number; // 선로 진행도 0~1
+  s: number; // 트램의 선로 위 거리
+  v: number; // 트램 속도
+  station: number | null; // 정차 중인 역 번호
+  actual: CameraPose;
+  desired: CameraPose;
+  transition: { active: boolean; progress: number };
+}
