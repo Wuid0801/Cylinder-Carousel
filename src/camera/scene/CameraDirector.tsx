@@ -136,7 +136,11 @@ export function CameraDirector({ path, stations, mode, config, inputRef, scrollR
       if (stationRef.current === null && near >= 0 && input === 0 && Math.abs(v) < config.stopSpeed) {
         stationRef.current = near;
         beginTransition(prev);
-      } else if (stationRef.current !== null && (input !== 0 || Math.abs(v) >= config.stopSpeed)) {
+      } else if (
+        stationRef.current !== null &&
+        // 다시 출발하거나, 빨라지거나, (마찰 없이 미끄러져) 역 범위를 벗어나면 근접 시점을 푼다
+        (input !== 0 || Math.abs(v) >= config.stopSpeed || Math.abs(stationsS[stationRef.current] - s) > config.stationRange)
+      ) {
         stationRef.current = null;
         beginTransition(prev);
       }

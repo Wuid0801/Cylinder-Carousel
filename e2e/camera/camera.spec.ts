@@ -225,3 +225,44 @@ test("역을 떠나는 전환이 끝나도 카메라가 멈칫하지 않고 감�
   await page.keyboard.up("ArrowRight");
   expect(lagAtEnd).toBeGreaterThan(1);
 });
+
+test("역 근접 시점은 트램이 미끄러져 역 범위를 벗어나면 풀린다 (마찰 0)", async ({ page }) => {
+  await gotoCamera(page);
+  await waitForAutoStop(page);
+  await switchMode(page, "트램 추적");
+  for (const [name, value] of [["friction", "0"], ["snapRange", "0"], ["stopSpeed", "3"]]) {
+    await page.locator(`input[type="number"][name="${name}"]`).fill(value);
+  }
+  await expect.poll(async () => (await inspect(page)).station).not.toBeNull();
+
+  // 살짝 밀면 손을 뗀 뒤 다시 근접 시점으로 잠기지만, 마찰이 없어 계속 미끄러진다
+  await page.keyboard.down("ArrowRight");
+  await page.waitForTimeout(150);
+  await page.keyboard.up("ArrowRight");
+  await expect.poll(async () => (await inspect(page)).station, { timeout: 10_000 }).toBeNull();
+  expect((await inspect(page)).v).toBeGreaterThan(0);
+});
+
+test("트램 추적: 누르기 영역은 마우스 오른쪽 버튼에 반응하지 않는다", async ({ page }) => {
+  await gotoCamera(page);
+  await waitForAutoStop(page);
+  await switchMode(page, "트램 추적");
+  const size = page.viewportSize()!;
+  await page.mouse.move(Math.round(size.width * 0.6), Math.round(size.height * 0.8));
+  await page.mouse.down({ button: "right" });
+  await page.waitForTimeout(800);
+  const during = await inspect(page);
+  await page.mouse.up({ button: "right" });
+  expect(during.v).toBe(0);
+});
+
+test.describe("동작 줄이기 설정", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("트램 자동 운행을 멈추고 안내한다", async ({ page }) => {
+    await gotoCamera(page);
+    await expect(page.getByText("동작 줄이기")).toBeVisible();
+    await page.waitForTimeout(2000);
+    expect((await inspect(page)).s).toBe(0);
+  });
+});

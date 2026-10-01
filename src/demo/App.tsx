@@ -6,6 +6,7 @@ import { ConfigPanel } from "./ConfigPanel";
 import { ControlModeLab } from "./ControlModeLab";
 import { DebugPanel } from "./DebugPanel";
 import { ErrorBoundary } from "../shared/ErrorBoundary";
+import { usePrefersReducedMotion } from "../shared/usePrefersReducedMotion";
 import { SETS } from "./sets";
 import { TouchActionLab, type TouchActionOption } from "./TouchActionLab";
 
@@ -25,6 +26,9 @@ export function App() {
   const [touchAction, setTouchAction] = useState<TouchActionOption>("none");
   const [controlMode, setControlMode] = useState<ControlMode>("object");
   const [config, setConfig] = useState<CarouselConfig>(DEFAULT_CONFIG);
+  const reducedMotion = usePrefersReducedMotion();
+  // 동작 줄이기 설정이면 자동 회전만 멈춘다 (드래그는 사용자가 직접 하는 동작이라 그대로 둔다)
+  const effectiveConfig = reducedMotion ? { ...config, autoRotateSpeed: 0 } : config;
   const [isMobile] = useState(() => window.matchMedia("(pointer: coarse)").matches);
 
   useEffect(() => {
@@ -44,6 +48,7 @@ export function App() {
         <p className="demo_links">
           <a href="./camera/">카메라 플레이그라운드 →</a>
         </p>
+        {reducedMotion ? <p className="demo_notice">동작 줄이기 설정이 켜져 있어 자동 회전을 멈췄습니다. 드래그로는 그대로 돌릴 수 있습니다.</p> : null}
       </header>
 
       <section className="demo_stage">
@@ -62,7 +67,7 @@ export function App() {
               isMobile={isMobile}
               touchAction={touchAction}
               inspectRef={inspectRef}
-              config={config}
+              config={effectiveConfig}
               controlMode={controlMode}
             />
           </div>

@@ -82,9 +82,11 @@ export function ImageCarousel({
   // 데모·E2E가 회전 상태를 읽을 수 있도록 객체 참조를 그대로 등록한다 (두 객체는 교체되지 않고 필드만 바뀜)
   useEffect(() => {
     if (!inspectRef) return;
-    inspectRef.current = { rotation: rotationRef.current, drag: dragRef.current };
+    const own = { rotation: rotationRef.current, drag: dragRef.current };
+    inspectRef.current = own;
     return () => {
-      inspectRef.current = null;
+      // 다른 인스턴스가 이미 등록했다면 지우지 않는다
+      if (inspectRef.current === own) inspectRef.current = null;
     };
   }, [inspectRef]);
 

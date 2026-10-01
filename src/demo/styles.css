@@ -142,3 +142,17 @@ body {
 .demo_links a {
   color: #8ab4f8;
 }
+
+.demo_notice {
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border: 1px solid #a67c00;
+  border-radius: 6px;
+  color: #f2c94c;
+  font-size: 13px;
+}
+
+.demo_error button {
+  padding: 6px 12px;
+  cursor: pointer;
+}

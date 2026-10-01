@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { Group } from "three";
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { usePrefersReducedMotion } from "../../shared/usePrefersReducedMotion";
 import { DEFAULT_CAMERA_CONFIG, type CameraConfig } from "../core/config";
 import { createPath } from "../core/path";
 import { progressToScroll, scrollToProgress } from "../core/scroll";
@@ -32,6 +33,9 @@ const HINTS: Record<CameraMode, string> = {
 export function App() {
   const [mode, setMode] = useState<CameraMode>("ride");
   const [config, setConfig] = useState<CameraConfig>(DEFAULT_CAMERA_CONFIG);
+  const reducedMotion = usePrefersReducedMotion();
+  // 동작 줄이기 설정이면 저절로 일어나는 움직임(자동 운행, 시점 전환 애니메이션)을 끈다
+  const effectiveConfig = reducedMotion ? { ...config, autoSpeed: 0, transitionDuration: 0 } : config;
   const [snapStation, setSnapStation] = useState<number | null>(null); // 승강장을 강조할 역
   const path = useMemo(() => createPath(TRACK_POINTS, { tension: config.tension, arcLength: config.arcLength }), [config.tension, config.arcLength]);
 
@@ -130,7 +134,7 @@ export function App() {
             path={path}
             stations={STATIONS}
             mode={mode}
-            config={config}
+            config={effectiveConfig}
             inputRef={inputRef}
             scrollRef={scrollRef}
             tramRef={tramRef}
@@ -156,6 +160,7 @@ export function App() {
       </header>
 
       <p className="cam_hint">{HINTS[mode]}</p>
+      {reducedMotion ? <p className="cam_notice">동작 줄이기 설정이 켜져 있어 트램 자동 운행과 시점 전환 애니메이션을 껐습니다</p> : null}
 
       {mode === "follow" ? (
         <div className="cam_hold">
@@ -165,6 +170,7 @@ export function App() {
               className="cam_hold_zone"
               data-dir={dir}
               onPointerDown={(e) => {
+                if (e.button !== 0) return; // 좌클릭·터치만 (오른쪽 버튼은 컨텍스트 메뉴가 pointerup을 삼킬 수 있다)
                 e.currentTarget.setPointerCapture(e.pointerId);
                 setPointerDir(dir);
               }}
